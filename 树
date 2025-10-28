@@ -1,0 +1,58 @@
+#include<iostream>
+#include<string>
+#include<vector>
+using namespace std;
+
+int main() {
+	string s;
+	int cnt = 0;
+	while (cin >> s && s != "#") {
+		cnt++;
+		vector<int> vec;//存储顺序遍历节点所在的层数h
+		int h1 = 0,h1_tmp = 0, h2 = 0, h2_tmp = 0, len = s.size();
+		for (int i = 0;i < len;i++) { //计算树的深度
+			if (s[i] == 'd')h1_tmp++;
+			else if (s[i] == 'u')h1_tmp--;
+			h1 = h1 > h1_tmp ? h1 : h1_tmp;
+		}
+		for (int i = 0;i < len;i++)	{  //计算二叉树的深度
+			int tmp = 0;
+			if (s[i] == 'u')continue;//并没有遇到新的节点，跳过
+			if (i == 0) {
+				vec.push_back(1);
+				h2_tmp = 1;	//初始计数 并防止后面i-1<0的情况
+				
+			}
+			else if (s[i - 1] == 'd') {	//说明是最左子节点 ，深度等于父节点深度也就是上一个节点深度+1
+				int len = vec.size();
+				vec.push_back(vec[len - 1] + 1);
+				h2_tmp = vec[len];
+				
+			}
+			else if (s[i - 1] == 'u') {	//说明有左节点，深度等于最近的左节点的深度+1
+				int cnt_u = 0, cnt_d = 0;
+				if (i - 2 >= 0 && s[i - 2] == 'd') { //左节点没子树，则就是上一个节点
+					int len = vec.size();
+					vec.push_back(vec[len - 1] + 1);
+					h2_tmp = vec[len];
+					
+				}
+				else {	//左节点有子树，则需要找出左节点的vec下标
+					for (int j = i - 2;j >= 0;j--) {                                         ------------------------出现错误：在这里左节点可能还有左子树之类的
+						if (s[j] == 'u')cnt_u++;
+						if (s[j] == 'd')cnt_d++;
+						if (cnt_u == cnt_d)break;
+					}
+					int len = vec.size() - 1;
+					vec.push_back(vec[len - cnt_u] + 1);
+					h2_tmp = vec[len + 1];
+				}
+				
+			}
+			h2 = h2 > h2_tmp ? h2 : h2_tmp;
+		}
+		cout << "Tree " << cnt << ": " << h1 << " => " << h2 << endl;
+	}
+	return 0;
+}
+
